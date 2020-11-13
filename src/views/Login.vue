@@ -1,6 +1,6 @@
 <template>
   <div class="login-page mx-auto p-3 w-330">
-    <h5 class="my-4 text-center">登录到者也</h5>
+    <h5 class="my-4 text-center">登录到知乎者也</h5>
     <validate-form @form-submit="onFormSubmit">
       <div class="mb-3">
         <label class="form-label">邮箱地址</label>
@@ -34,6 +34,7 @@ import { useStore } from 'vuex'
 import { GlobalDataProps } from '../store'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
 import ValidateForm from '../components/ValidateForm.vue'
+import createMessage from '../components/createMessage'
 
 export default defineComponent({
   name: 'Login',
@@ -55,20 +56,18 @@ export default defineComponent({
     ]
     const onFormSubmit = (result: boolean) => {
       if (result) {
-        store.commit('login')
-        router.push('/')
-        // const payload = {
-        //   email: emailVal.value,
-        //   password: passwordVal.value
-        // }
-        // store.dispatch('loginAndFetch', payload).then(data => {
-        //   createMessage('登录成功 2秒后跳转首页', 'success')
-        //   setTimeout(() => {
-        //     router.push('/')
-        //   }, 2000)
-        // }).catch(e => {
-        //   console.log(e)
-        // })
+        const payload = {
+          email: emailVal.value,
+          password: passwordVal.value
+        }
+        store.dispatch('loginAndFetch', payload).then(() => {
+          createMessage('登录成功 2秒后跳转首页', 'success')
+          setTimeout(() => {
+            router.push('/')
+          }, 2000)
+        }).catch(e => {
+          console.log(e)
+        })
       }
     }
     return {
@@ -81,3 +80,8 @@ export default defineComponent({
   }
 })
 </script>
+<style lang="less" scoped>
+.w-330 {
+  max-width: 330px;
+}
+</style>

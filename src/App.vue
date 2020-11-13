@@ -18,10 +18,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import GlobalHeader, { UserProps } from './components/GlobalHeader.vue'
+import { computed, defineComponent, watch } from 'vue'
+import GlobalHeader from './components/GlobalHeader.vue'
 import Loading from './components/Loading.vue'
+import createMessage from './components/createMessage'
 import { useStore } from 'vuex'
 import { GlobalDataProps } from './store'
 export default defineComponent({
@@ -34,9 +34,18 @@ export default defineComponent({
     const store = useStore<GlobalDataProps>()
     const currentUser = computed(() => store.state.user)
     const isLoading = computed(() => store.state.loading)
+    const error = computed(() => store.state.error)
+    createMessage('注册成功 正在跳转登录页面', 'success', 20000)
+    watch(() => error.value.status, () => {
+      const { message, status } = error.value
+      if (status && message) {
+        createMessage(message, 'error')
+      }
+    })
     return {
       currentUser,
-      isLoading
+      isLoading,
+      error
     }
   }
 })
