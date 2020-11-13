@@ -39,12 +39,12 @@ const router = createRouter({
       name: 'create',
       component: () => import('./views/CreatePost.vue'),
       meta: { requiredLogin: true }
+    },
+    {
+      path: '/posts/:id',
+      name: 'post',
+      component: () => import('./views/PostDetail.vue')
     }
-    // {
-    //   path: '/posts/:id',
-    //   name: 'post',
-    //   component: () => import('./views/PostDetail.vue')
-    // }
   ]
 })
 router.beforeEach((to, from, next) => {

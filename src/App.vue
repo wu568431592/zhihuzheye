@@ -35,7 +35,6 @@ export default defineComponent({
     const currentUser = computed(() => store.state.user)
     const isLoading = computed(() => store.state.loading)
     const error = computed(() => store.state.error)
-    createMessage('注册成功 正在跳转登录页面', 'success', 20000)
     watch(() => error.value.status, () => {
       const { message, status } = error.value
       if (status && message) {

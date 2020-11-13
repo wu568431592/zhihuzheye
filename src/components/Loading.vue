@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import useDOMCreate from '@/hooks/useDOMCreate'
-import { defineComponent, onUnmounted } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   props: {

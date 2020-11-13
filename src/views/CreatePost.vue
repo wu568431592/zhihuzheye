@@ -12,7 +12,7 @@
       <template #loading>
         <div class="d-flex">
           <div class="spinner-border text-secondary" role="status">
-            <span class="sr-only">Loading...</span>
+            <span class="sr-only" style="display:none">Loading...</span>
           </div>
           <h2>正在上传</h2>
         </div>
@@ -54,18 +54,19 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter, useRoute } from 'vue-router'
-import { GlobalDataProps, PostProps } from '../store'
+import { GlobalDataProps, PostProps, ResponseType, ImageProps } from '../store'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
 import ValidateForm from '../components/ValidateForm.vue'
-// import Uploader from '../components/Uploader.vue'
-// import createMessage from '../components/createMessage'
-// import { beforeUploadCheck } from '../helper'
+import Uploader from '../components/Uploader.vue'
+import createMessage from '../components/createMessage'
+import { beforeUploadCheck } from '../helper'
+
 export default defineComponent({
   name: 'Login',
   components: {
     ValidateInput,
-    ValidateForm
-    // Uploader
+    ValidateForm,
+    Uploader
   },
   setup () {
     const uploadedData = ref()
@@ -74,7 +75,7 @@ export default defineComponent({
     const route = useRoute()
     const isEditMode = !!route.query.id
     const store = useStore<GlobalDataProps>()
-    const imageId = ''
+    let imageId = ''
     const titleRules: RulesProp = [
       { type: 'required', message: '文章标题不能为空' }
     ]
@@ -83,85 +84,68 @@ export default defineComponent({
       { type: 'required', message: '文章详情不能为空' }
     ]
     onMounted(() => {
-      // if (isEditMode) {
-      //   store.dispatch('fetchPost', route.query.id).then((rawData: ResponseType<PostProps>) => {
-      //     const currentPost = rawData.data
-      //     if (currentPost.image) {
-      //       uploadedData.value = { data: currentPost.image }
-      //     }
-      //     titleVal.value = currentPost.title
-      //     contentVal.value = currentPost.content || ''
-      //   })
-      // }
-    })
-    // const handleFileUploaded = (rawData: ResponseType<ImageProps>) => {
-    //   if (rawData.data._id) {
-    //     imageId = rawData.data._id
-    //   }
-    // }
-    const onFormSubmit = (result: boolean) => {
-      if (result) {
-        const { column } = store.state.user
-        if (column) {
-          const newPost: PostProps = {
-            _id: String(new Date().getTime()),
-            title: titleVal.value,
-            content: contentVal.value,
-            column: column,
-            createdAt: new Date().toLocaleString()
+      if (isEditMode) {
+        store.dispatch('fetchPost', route.query.id).then((rawData: ResponseType<PostProps>) => {
+          const currentPost = rawData.data
+          if (currentPost.image) {
+            uploadedData.value = { data: currentPost.image }
           }
-          store.commit('createPost', newPost)
-          router.push({
-            name: 'column',
-            params: {
-              id: column
-            }
-          })
-        }
-        // const { column, _id } = store.state.user
-        // if (column) {
-        //   const newPost: PostProps = {
-        //     title: titleVal.value,
-        //     content: contentVal.value,
-        //     column,
-        //     author: _id
-        //   }
-        //   if (imageId) {
-        //     newPost.image = imageId
-        //   }
-        //   const actionName = isEditMode ? 'updatePost' : 'createPost'
-        //   const sendData = isEditMode ? {
-        //     id: route.query.id,
-        //     payload: newPost
-        //   } : newPost
-        //   store.dispatch(actionName, sendData).then(() => {
-        //     createMessage('发表成功，2秒后跳转到文章', 'success', 2000)
-        //     setTimeout(() => {
-        //       router.push({ name: 'column', params: { id: column } })
-        //     }, 2000)
-        //   })
-        // }
+          titleVal.value = currentPost.title
+          contentVal.value = currentPost.content || ''
+        })
+      }
+    })
+    const handleFileUploaded = (rawData: ResponseType<ImageProps>) => {
+      if (rawData.data._id) {
+        imageId = rawData.data._id
       }
     }
-    // const uploadCheck = (file: File) => {
-    //   const result = beforeUploadCheck(file, { format: ['image/jpeg', 'image/png'], size: 1 })
-    //   const { passed, error } = result
-    //   if (error === 'format') {
-    //     createMessage('上传图片只能是 JPG/PNG 格式!', 'error')
-    //   }
-    //   if (error === 'size') {
-    //     createMessage('上传图片大小不能超过 1Mb', 'error')
-    //   }
-    //   return passed
-    // }
+    const onFormSubmit = (result: boolean) => {
+      if (result) {
+        const { column, _id } = store.state.user
+        if (column) {
+          const newPost: PostProps = {
+            title: titleVal.value,
+            content: contentVal.value,
+            column,
+            author: _id
+          }
+          if (imageId) {
+            newPost.image = imageId
+          }
+          const actionName = isEditMode ? 'updatePost' : 'createPost'
+          const sendData = isEditMode ? {
+            id: route.query.id,
+            payload: newPost
+          } : newPost
+          store.dispatch(actionName, sendData).then(() => {
+            createMessage('发表成功，2秒后跳转到文章', 'success', 2000)
+            setTimeout(() => {
+              router.push({ name: 'column', params: { id: column } })
+            }, 2000)
+          })
+        }
+      }
+    }
+    const uploadCheck = (file: File) => {
+      const result = beforeUploadCheck(file, { format: ['image/jpeg', 'image/png'], size: 1 })
+      const { passed, error } = result
+      if (error === 'format') {
+        createMessage('上传图片只能是 JPG/PNG 格式!', 'error')
+      }
+      if (error === 'size') {
+        createMessage('上传图片大小不能超过 1Mb', 'error')
+      }
+      return passed
+    }
     return {
       titleRules,
       titleVal,
       contentVal,
       contentRules,
       onFormSubmit,
-      // uploadCheck,
-      // handleFileUploaded,
+      uploadCheck,
+      handleFileUploaded,
       uploadedData,
       isEditMode
     }
