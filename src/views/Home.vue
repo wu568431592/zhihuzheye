@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, onMounted, ref } from 'vue'
+import { defineComponent, computed, onMounted } from 'vue'
 import ColumnList from '../components/ColumnList.vue'
 import { useStore } from 'vuex'
 import { GlobalDataProps } from '../store'
