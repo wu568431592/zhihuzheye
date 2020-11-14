@@ -27,6 +27,7 @@ import { defineComponent, computed, onMounted, ref } from 'vue'
 import ColumnList from '../components/ColumnList.vue'
 import { useStore } from 'vuex'
 import { GlobalDataProps } from '../store'
+import useLoadMore from '../hooks/useLoadMore'
 
 export default defineComponent({
   name: 'Home',
@@ -35,18 +36,17 @@ export default defineComponent({
   },
   setup () {
     const store = useStore<GlobalDataProps>()
-    // const total = computed(() => store.state.columns.total)
+    const total = computed(() => store.state.columns.total)
     onMounted(() => {
       store.dispatch('fetchColumns', { pageSize: 3 })
     })
-    // const list = []
     const list = computed(() => store.getters.getColumns)
 
-    // const { loadMorePage, isLastPage } = useLoadMore('fetchColumns', total, { pageSize: 3, currentPage: 2 })
+    const { loadMorePage, isLastPage } = useLoadMore('fetchColumns', total, { pageSize: 3, currentPage: 2 })
     return {
-      list
-      // loadMorePage,
-      // isLastPage
+      list,
+      loadMorePage,
+      isLastPage
     }
   }
 })
